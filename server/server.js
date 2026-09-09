@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -13,10 +13,10 @@ app.get("/", (req, res) => {
   res.json({
     message: "PosterAI Backend is running!",
     status: "success",
+    mode: "DEMO",
   });
 });
 
-// Escape text so it is safe inside SVG
 function escapeXml(text = "") {
   return String(text)
     .replace(/&/g, "&amp;")
@@ -26,17 +26,16 @@ function escapeXml(text = "") {
     .replace(/'/g, "&apos;");
 }
 
-// Generate a poster locally for development/demo mode
 function createDemoPoster(data) {
   const {
-    title,
-    type,
-    date,
-    venue,
-    description,
-    audience,
-    style,
-    color,
+    title = "AI EVENT",
+    type = "College Event",
+    date = "",
+    venue = "",
+    description = "An exciting college event",
+    audience = "Students",
+    style = "Modern",
+    color = "Purple",
     variation = 1,
   } = data;
 
@@ -46,21 +45,25 @@ function createDemoPoster(data) {
       secondary: "#7c3aed",
       background: "#100b1c",
     },
+
     Blue: {
       primary: "#38bdf8",
       secondary: "#2563eb",
       background: "#07121f",
     },
+
     Red: {
       primary: "#f87171",
       secondary: "#dc2626",
       background: "#1c0808",
     },
+
     Green: {
       primary: "#4ade80",
       secondary: "#16a34a",
       background: "#06150d",
     },
+
     Orange: {
       primary: "#fb923c",
       secondary: "#ea580c",
@@ -70,208 +73,129 @@ function createDemoPoster(data) {
 
   const theme = themes[color] || themes.Purple;
 
-  const styles = {
-  Modern: {
-    font: "Arial, sans-serif",
-    titleSize: 76,
-    titleWeight: "bold",
-    radius: 35,
-    pattern: "circles",
-  },
+  const variationNumber = ((Number(variation) - 1) % 5) + 1;
 
-  Minimal: {
-    font: "Helvetica, Arial, sans-serif",
-    titleSize: 68,
-    titleWeight: "normal",
-    radius: 10,
-    pattern: "minimal",
-  },
+  let decoration = "";
 
-  Futuristic: {
-    font: "Arial, sans-serif",
-    titleSize: 72,
-    titleWeight: "bold",
-    radius: 0,
-    pattern: "grid",
-  },
+  if (variationNumber === 1) {
+    decoration = `
+      <circle
+        cx="850"
+        cy="170"
+        r="360"
+        fill="url(#glow)"
+      />
 
-  Elegant: {
-    font: "Georgia, serif",
-    titleSize: 70,
-    titleWeight: "normal",
-    radius: 45,
-    pattern: "elegant",
-  },
+      <circle
+        cx="100"
+        cy="1130"
+        r="280"
+        fill="url(#glow)"
+      />
+    `;
+  }
 
-  Creative: {
-    font: "Arial, sans-serif",
-    titleSize: 78,
-    titleWeight: "bold",
-    radius: 50,
-    pattern: "creative",
-  },
+  if (variationNumber === 2) {
+    decoration = `
+      <rect
+        x="25"
+        y="25"
+        width="974"
+        height="1230"
+        rx="35"
+        fill="none"
+        stroke="${theme.primary}"
+        stroke-width="10"
+        opacity="0.35"
+      />
 
-  Corporate: {
-    font: "Arial, sans-serif",
-    titleSize: 62,
-    titleWeight: "bold",
-    radius: 8,
-    pattern: "corporate",
-  },
-};
+      <circle
+        cx="100"
+        cy="200"
+        r="180"
+        fill="url(#glow)"
+      />
+    `;
+  }
 
-const selectedStyle = styles[style] || styles.Modern;
-const variationNumber = Number(variation) || 1;
+  if (variationNumber === 3) {
+    decoration = `
+      <path
+        d="M0 1000 L1024 350"
+        stroke="${theme.primary}"
+        stroke-width="180"
+        opacity="0.10"
+      />
 
-const variationDecor = {
-  1: `
-    <circle
-      cx="850"
-      cy="180"
-      r="380"
-      fill="url(#glow)"
-    />
-    <circle
-      cx="100"
-      cy="1150"
-      r="300"
-      fill="url(#glow)"
-    />
-  `,
+      <circle
+        cx="900"
+        cy="150"
+        r="260"
+        fill="url(#glow)"
+      />
+    `;
+  }
 
-  2: `
-    <rect
-      x="0"
-      y="0"
-      width="1024"
-      height="1280"
-      fill="none"
-      stroke="${theme.primary}"
-      stroke-width="18"
-      opacity="0.35"
-    />
+  if (variationNumber === 4) {
+    decoration = `
+      <rect
+        x="100"
+        y="100"
+        width="824"
+        height="1080"
+        rx="30"
+        fill="none"
+        stroke="${theme.primary}"
+        stroke-width="4"
+        opacity="0.7"
+      />
 
-    <circle
-      cx="80"
-      cy="250"
-      r="180"
-      fill="url(#glow)"
-    />
-  `,
+      <rect
+        x="120"
+        y="120"
+        width="784"
+        height="1040"
+        rx="25"
+        fill="none"
+        stroke="${theme.secondary}"
+        stroke-width="2"
+        opacity="0.5"
+      />
+    `;
+  }
 
-  3: `
-    <path
-      d="M0 950 L1024 400"
-      stroke="${theme.primary}"
-      stroke-width="160"
-      opacity="0.12"
-    />
+  if (variationNumber === 5) {
+    decoration = `
+      <circle
+        cx="50"
+        cy="100"
+        r="250"
+        fill="${theme.primary}"
+        opacity="0.18"
+      />
 
-    <circle
-      cx="900"
-      cy="150"
-      r="250"
-      fill="url(#glow)"
-    />
-  `,
+      <circle
+        cx="980"
+        cy="1150"
+        r="300"
+        fill="${theme.secondary}"
+        opacity="0.18"
+      />
 
-  4: `
-    <rect
-      x="120"
-      y="120"
-      width="784"
-      height="1040"
-      rx="20"
-      fill="none"
-      stroke="${theme.primary}"
-      stroke-width="4"
-      opacity="0.8"
-    />
+      <path
+        d="M0 300 Q500 600 1024 250"
+        fill="none"
+        stroke="${theme.primary}"
+        stroke-width="30"
+        opacity="0.25"
+      />
+    `;
+  }
 
-    <rect
-      x="150"
-      y="150"
-      width="724"
-      height="980"
-      rx="15"
-      fill="none"
-      stroke="${theme.secondary}"
-      stroke-width="2"
-      opacity="0.5"
-    />
-  `,
+  let styleDecoration = "";
 
-  5: `
-    <circle
-      cx="50"
-      cy="100"
-      r="260"
-      fill="${theme.primary}"
-      opacity="0.18"
-    />
-
-    <circle
-      cx="980"
-      cy="1150"
-      r="320"
-      fill="${theme.secondary}"
-      opacity="0.18"
-    />
-
-    <path
-      d="M0 300 Q500 600 1024 250"
-      fill="none"
-      stroke="${theme.primary}"
-      stroke-width="35"
-      opacity="0.25"
-    />
-  `,
-};
-
-const currentVariation =
-  variationDecor[((variationNumber - 1) % 5) + 1];
-const variationTransforms = {
-  1: "",
-  2: `<g transform="translate(-90,20) rotate(-2 512 640)">`,
-  3: `<g transform="translate(70,0) rotate(2 512 640)">`,
-  4: `<g transform="translate(0,45) scale(0.92)">`,
-  5: `<g transform="translate(0,-25) scale(1.06)">`,
-};
-
-const currentTransform =
-  variationTransforms[((Number(variation) - 1) % 5) + 1];
-
-  const svg = `
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="1024"
-    height="1280"
-    viewBox="0 0 1024 1280"
-  >
-
-    <defs>
-      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="${theme.background}"/>
-        <stop offset="100%" stop-color="#08090d"/>
-      </linearGradient>
-
-      <radialGradient id="glow">
-        <stop offset="0%" stop-color="${theme.primary}" stop-opacity="0.45"/>
-        <stop offset="100%" stop-color="${theme.primary}" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-
-    <rect width="1024" height="1280" fill="url(#bg)"/>
-
-${currentVariation}
-
-${currentTransform}
-
-${currentVariation}
-
-${
-  selectedStyle.pattern === "grid"
-    ? `
+  if (style === "Futuristic") {
+    styleDecoration = `
       <defs>
         <pattern
           id="grid"
@@ -280,7 +204,7 @@ ${
           patternUnits="userSpaceOnUse"
         >
           <path
-            d="M 45 0 L 0 0 0 45"
+            d="M45 0 L0 0 0 45"
             fill="none"
             stroke="${theme.primary}"
             stroke-opacity="0.12"
@@ -294,282 +218,298 @@ ${
         height="1280"
         fill="url(#grid)"
       />
-    `
-    : ""
-}
+    `;
+  }
 
-${
-  selectedStyle.pattern === "minimal"
-    ? `
+  if (style === "Elegant") {
+    styleDecoration = `
       <rect
-        x="130"
-        y="150"
-        width="764"
-        height="980"
-        fill="white"
-        opacity="0.96"
-      />
-    `
-    : ""
-}
-
-${
-  selectedStyle.pattern === "creative"
-    ? `
-      <circle
-        cx="130"
-        cy="180"
-        r="130"
-        fill="${theme.primary}"
-        opacity="0.45"
-      />
-
-      <circle
-        cx="880"
-        cy="1050"
-        r="190"
-        fill="${theme.secondary}"
-        opacity="0.45"
-      />
-
-      <path
-        d="M0 900 Q300 650 600 900 T1200 800"
+        x="90"
+        y="90"
+        width="844"
+        height="1100"
+        rx="40"
         fill="none"
         stroke="${theme.primary}"
-        stroke-width="25"
-        opacity="0.25"
+        stroke-width="3"
+        opacity="0.7"
       />
-    `
-    : ""
-}
 
-${
-  selectedStyle.pattern === "elegant"
-    ? `
       <rect
         x="110"
         y="110"
         width="804"
         height="1060"
-        rx="45"
-        fill="none"
-        stroke="${theme.primary}"
-        stroke-width="3"
-        opacity="0.65"
-      />
-
-      <rect
-        x="125"
-        y="125"
-        width="774"
-        height="1030"
-        rx="40"
+        rx="35"
         fill="none"
         stroke="${theme.primary}"
         stroke-width="1"
+        opacity="0.4"
+      />
+    `;
+  }
+
+  if (style === "Creative") {
+    styleDecoration = `
+      <circle
+        cx="120"
+        cy="180"
+        r="130"
+        fill="${theme.primary}"
         opacity="0.35"
       />
-    `
-    : ""
-}
 
-${
-  selectedStyle.pattern === "corporate"
-    ? `
+      <circle
+        cx="900"
+        cy="1050"
+        r="190"
+        fill="${theme.secondary}"
+        opacity="0.35"
+      />
+
+      <path
+        d="M0 900 Q300 650 600 900 T1100 800"
+        fill="none"
+        stroke="${theme.primary}"
+        stroke-width="25"
+        opacity="0.3"
+      />
+    `;
+  }
+
+  if (style === "Corporate") {
+    styleDecoration = `
       <rect
-        x="80"
-        y="80"
+        x="65"
+        y="65"
         width="25"
-        height="1120"
+        height="1150"
         fill="${theme.primary}"
       />
 
       <rect
-        x="80"
-        y="80"
-        width="864"
+        x="65"
+        y="65"
+        width="894"
         height="12"
         fill="${theme.primary}"
       />
-    `
-    : ""
-}
+    `;
+  }
 
-    ${
-  selectedStyle.pattern === "circles" ||
-  selectedStyle.pattern === "creative"
-    ? `
-      <circle
-        cx="850"
-        cy="180"
-        r="380"
-        fill="url(#glow)"
+  const svg = `
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1024"
+  height="1280"
+  viewBox="0 0 1024 1280"
+>
+
+  <defs>
+
+    <linearGradient
+      id="bg"
+      x1="0"
+      y1="0"
+      x2="1"
+      y2="1"
+    >
+      <stop
+        offset="0%"
+        stop-color="${theme.background}"
       />
 
-      <circle
-        cx="100"
-        cy="1150"
-        r="300"
-        fill="url(#glow)"
+      <stop
+        offset="100%"
+        stop-color="#08090d"
       />
-    `
-    : ""
-}
+    </linearGradient>
 
-    <circle
-      cx="850"
-      cy="180"
-      r="260"
-      fill="none"
-      stroke="${theme.primary}"
-      stroke-opacity="0.18"
-      stroke-width="2"
-    />
+    <radialGradient id="glow">
 
-    <circle
-      cx="850"
-      cy="180"
-      r="190"
-      fill="none"
-      stroke="${theme.primary}"
-      stroke-opacity="0.12"
-      stroke-width="2"
-    />
+      <stop
+        offset="0%"
+        stop-color="${theme.primary}"
+        stop-opacity="0.5"
+      />
 
-    <rect
-      x="80"
-      y="80"
-      width="864"
-      height="1120"
-      rx="${selectedStyle.radius}"
-      fill="none"
-      stroke="white"
-      stroke-opacity="0.10"
-      stroke-width="2"
-    />
+      <stop
+        offset="100%"
+        stop-color="${theme.primary}"
+        stop-opacity="0"
+      />
 
-    <text
-      x="512"
-      y="180"
-      text-anchor="middle"
-      fill="${theme.primary}"
-      font-family="${selectedStyle.font}"
-      font-size="${selectedStyle.titleSize}"
-      font-weight="${selectedStyle.titleWeight}"
-      letter-spacing="5"
-    >
-      ${escapeXml(type).toUpperCase()}
-    </text>
+    </radialGradient>
 
-    <text
-      x="512"
-      y="400"
-      text-anchor="middle"
-      fill="white"
-      font-family="Arial, sans-serif"
-      font-size="76"
-      font-weight="bold"
-    >
-      ${escapeXml(title)}
-    </text>
+  </defs>
 
-    <rect
-      x="462"
-      y="455"
-      width="100"
-      height="7"
-      rx="4"
-      fill="${theme.primary}"
-    />
+  <rect
+    width="1024"
+    height="1280"
+    fill="url(#bg)"
+  />
 
-    <text
-      x="512"
-      y="545"
-      text-anchor="middle"
-      fill="#c7c7d0"
-      font-family="Arial, sans-serif"
-      font-size="25"
-    >
-      ${escapeXml(description)}
-    </text>
+  ${decoration}
 
-    <text
-      x="512"
-      y="690"
-      text-anchor="middle"
-      fill="white"
-      font-family="Arial, sans-serif"
-      font-size="28"
-      font-weight="bold"
-    >
-      ${escapeXml(date || "Date to be announced")}
-    </text>
+  ${styleDecoration}
 
-    <text
-      x="512"
-      y="745"
-      text-anchor="middle"
-      fill="#a9a9b4"
-      font-family="Arial, sans-serif"
-      font-size="23"
-    >
-      ${escapeXml(venue || "Venue to be announced")}
-    </text>
+  <rect
+    x="55"
+    y="55"
+    width="914"
+    height="1170"
+    rx="25"
+    fill="none"
+    stroke="white"
+    stroke-opacity="0.10"
+    stroke-width="2"
+  />
 
-    <rect
-      x="260"
-      y="850"
-      width="504"
-      height="2"
-      fill="${theme.primary}"
-      opacity="0.35"
-    />
+  <text
+    x="512"
+    y="190"
+    text-anchor="middle"
+    fill="${theme.primary}"
+    font-family="Arial, sans-serif"
+    font-size="38"
+    font-weight="bold"
+    letter-spacing="5"
+  >
+    ${escapeXml(type).toUpperCase()}
+  </text>
 
-    <text
-      x="512"
-      y="930"
-      text-anchor="middle"
-      fill="#888894"
-      font-family="Arial, sans-serif"
-      font-size="18"
-      letter-spacing="3"
-    >
-      DESIGNED FOR ${escapeXml(audience).toUpperCase()}
-    </text>
+  <text
+    x="512"
+    y="390"
+    text-anchor="middle"
+    fill="white"
+    font-family="Arial, sans-serif"
+    font-size="76"
+    font-weight="bold"
+  >
+    ${escapeXml(title)}
+  </text>
 
-    <text
-      x="512"
-      y="1040"
-      text-anchor="middle"
-      fill="${theme.primary}"
-      font-family="Arial, sans-serif"
-      font-size="20"
-      font-weight="bold"
-      letter-spacing="3"
-    >
-      ${escapeXml(style).toUpperCase()} • AI ASSISTED
-    </text>
+  <rect
+    x="462"
+    y="440"
+    width="100"
+    height="7"
+    rx="4"
+    fill="${theme.primary}"
+  />
 
-    <text
-      x="512"
-      y="1120"
-      text-anchor="middle"
-      fill="#555560"
-      font-family="Arial, sans-serif"
-      font-size="16"
-    >
-      PosterAI • AI-Assisted Poster Design System
-    </text>
-    ${currentTransform ? `</g>` : ""}
-  </svg>
-  `;
+  <text
+    x="512"
+    y="530"
+    text-anchor="middle"
+    fill="#c7c7d0"
+    font-family="Arial, sans-serif"
+    font-size="25"
+  >
+    ${escapeXml(description)}
+  </text>
 
-  return Buffer.from(svg).toString("base64");
+  <text
+    x="512"
+    y="680"
+    text-anchor="middle"
+    fill="white"
+    font-family="Arial, sans-serif"
+    font-size="30"
+    font-weight="bold"
+  >
+    ${escapeXml(date || "Date to be announced")}
+  </text>
+
+  <text
+    x="512"
+    y="735"
+    text-anchor="middle"
+    fill="#aaaab5"
+    font-family="Arial, sans-serif"
+    font-size="24"
+  >
+    ${escapeXml(venue || "Venue to be announced")}
+  </text>
+
+  <rect
+    x="260"
+    y="825"
+    width="504"
+    height="2"
+    fill="${theme.primary}"
+    opacity="0.4"
+  />
+
+  <text
+    x="512"
+    y="900"
+    text-anchor="middle"
+    fill="#888894"
+    font-family="Arial, sans-serif"
+    font-size="18"
+    letter-spacing="3"
+  >
+    DESIGNED FOR ${escapeXml(audience).toUpperCase()}
+  </text>
+
+  <rect
+    x="330"
+    y="965"
+    width="364"
+    height="65"
+    rx="12"
+    fill="${theme.primary}"
+  />
+
+  <text
+    x="512"
+    y="1007"
+    text-anchor="middle"
+    fill="white"
+    font-family="Arial, sans-serif"
+    font-size="21"
+    font-weight="bold"
+  >
+    REGISTER NOW
+  </text>
+
+  <text
+    x="512"
+    y="1100"
+    text-anchor="middle"
+    fill="${theme.primary}"
+    font-family="Arial, sans-serif"
+    font-size="18"
+    font-weight="bold"
+    letter-spacing="3"
+  >
+    ${escapeXml(style).toUpperCase()} • AI ASSISTED
+  </text>
+
+  <text
+    x="512"
+    y="1160"
+    text-anchor="middle"
+    fill="#555560"
+    font-family="Arial, sans-serif"
+    font-size="15"
+  >
+    PosterAI • AI-Assisted Poster Design System
+  </text>
+
+</svg>
+`;
+
+  return Buffer.from(svg, "utf8").toString("base64");
 }
 
 
 app.post("/api/generate-poster", async (req, res) => {
+
   try {
+
     const {
       title,
       type,
@@ -580,14 +520,16 @@ app.post("/api/generate-poster", async (req, res) => {
       style,
       color,
       variation = 1,
+      prompt = "",
     } = req.body;
 
     console.log("\n========== POSTER REQUEST ==========");
     console.log(req.body);
 
-    // This is the AI prompt our system prepares.
     const aiPrompt = `
 Create a professional promotional poster.
+
+${prompt ? `User's design request: ${prompt}` : ""}
 
 Event: ${title}
 Type: ${type}
@@ -599,22 +541,26 @@ Design style: ${style}
 Color theme: ${color}
 
 Use strong visual hierarchy, professional typography,
-attractive composition and a design suitable for social media.
+attractive composition and social-media-ready design.
 `;
-    
-    console.log("\nGenerated AI Prompt:");
-    console.log(aiPrompt);
 
-    // DEMO MODE
-    // This allows development without API credits.
     const imageBase64 = createDemoPoster({
-  ...req.body,
-  variation,
-});
-    const imageData = `data:image/svg+xml;base64,${imageBase64}`;
+      title,
+      type,
+      date,
+      venue,
+      description,
+      audience,
+      style,
+      color,
+      variation,
+    });
+
+    const imageData =
+      `data:image/svg+xml;base64,${imageBase64}`;
 
     console.log("Poster created successfully.");
-    console.log("Sending response to React...");
+    console.log("Image length:", imageData.length);
 
     res.status(200).json({
       success: true,
@@ -623,19 +569,24 @@ attractive composition and a design suitable for social media.
       image: imageData,
     });
 
-    } catch (error) {
-  console.error("POSTER ERROR:", error);
+  } catch (error) {
 
-  res.status(500).json({
-    success: false,
-    message: "Failed to generate poster.",
-    error: String(error),
-  });
-}
+    console.error("POSTER ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate poster.",
+      error: String(error),
+    });
+
+  }
+
 });
 
 
-app.listen(PORT, () => {
-  console.log(`PosterAI Backend running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`PosterAI Backend running on port ${PORT}`);
   console.log("Mode: DEMO");
 });

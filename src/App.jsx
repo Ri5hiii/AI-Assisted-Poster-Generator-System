@@ -28,6 +28,8 @@ function App() {
   const [posterImage, setPosterImage] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
   const [variation, setVariation] = useState(1);
+  const [promptMode, setPromptMode] = useState(false);
+  const [userPrompt, setUserPrompt] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -37,9 +39,16 @@ function App() {
   };
 
 const generatePoster = async (selectedVariation = variation) => {
-  if (!form.title || !form.description) {
-    alert("Please enter an event title and description.");
-    return;
+  if (promptMode) {
+    if (!userPrompt.trim()) {
+      alert("Please describe the poster first.");
+      return;
+    }
+  } else {
+    if (!form.title || !form.description) {
+      alert("Please enter an event title and description.");
+      return;
+    }
   }
 
   setLoading(true);
@@ -57,11 +66,13 @@ const generatePoster = async (selectedVariation = variation) => {
         body: JSON.stringify({
           ...form,
           variation: selectedVariation,
+          prompt: promptMode ? userPrompt : "",
         }),
       }
     );
 
     const data = await response.json();
+    console.log("IMAGE DATA:", data.image);
 
     console.log("Backend status:", response.status);
     console.log("Backend data:", data);
@@ -146,10 +157,62 @@ const generatePoster = async (selectedVariation = variation) => {
             <p>Provide a few details and let AI handle the creativity.</p>
           </div>
         </div>
-
+        <div className="creation-mode">
+            <button
+              type="button"
+              className={!promptMode ? "mode-button active" : "mode-button"}
+              onClick={() => setPromptMode(false)}
+            >
+              📋 Smart Form
+            </button>
+            
+            <button
+              type="button"
+              className={promptMode ? "mode-button active" : "mode-button"}
+              onClick={() => setPromptMode(true)}
+            >
+              ✨ AI Prompt
+            </button>
+          </div>
         <div className="generator-grid">
-          {/* Form */}
-          <div className="form-card">
+
+  {promptMode && (
+    <div className="prompt-mode-card">
+      <label>✨ Describe your poster</label>
+
+      <textarea
+        className="ai-prompt-input"
+        value={userPrompt}
+        onChange={(e) => setUserPrompt(e.target.value)}
+        placeholder="Example: Create a futuristic college hackathon poster with neon blue and purple colors, glowing technology elements, bold typography and a premium modern look."
+        rows="7"
+      />
+
+      <p className="prompt-hint">
+        Describe the event, style, colors, mood, audience or visual elements you want.
+      </p>
+
+      <button
+        type="button"
+        className="enhance-prompt-button"
+        onClick={() => {
+          if (!userPrompt.trim()) {
+            alert("Please describe the poster first.");
+            return;
+          }
+
+          setUserPrompt(
+            `${userPrompt.trim()}. Create a professional promotional poster with strong visual hierarchy, attractive typography, balanced composition and social-media-ready design.`
+          );
+        }}
+      >
+        ✨ Improve My Prompt
+      </button>
+    </div>
+  )}
+
+  {/* Form */}
+  <div className="form-card">
             <div className="field">
               <label>
                 <Type size={16} />
