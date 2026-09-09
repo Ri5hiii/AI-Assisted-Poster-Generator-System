@@ -57,7 +57,7 @@ const generatePoster = async (selectedVariation = variation) => {
 
   try {
     const response = await fetch(
-      "http://localhost:5000/api/generate-poster",
+      "https://posterai-backend.onrender.com/api/generate-poster",
       {
         method: "POST",
         headers: {
